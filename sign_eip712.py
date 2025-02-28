@@ -68,10 +68,7 @@ def main():
         print("Error: FORDEFI_API_TOKEN environment variable is not set")
         return
     
-    typed_message = json.dumps(typed_data)
-    hex_encoded_message = to_hex(text=typed_message)
-    print(f"Hex encoded message: {hex_encoded_message}")
-    
+    typed_message = json.dumps(typed_data)    
     request_json = construct_request(FORDEFI_EVM_VAULT_ID, typed_message)
 
     request_body = json.dumps(request_json)
