@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from api_requests.push_to_api import make_api_request
 from request_builder.construct_request import construct_request
 from signing.signer import sign
-from eth_utils.curried import to_hex
 
 load_dotenv()
 FORDEFI_API_USER_TOKEN = os.getenv("FORDEFI_API_USER_TOKEN")
