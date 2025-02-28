@@ -72,7 +72,7 @@ def main():
     request_json = construct_request(FORDEFI_EVM_VAULT_ID, typed_message)
 
     request_body = json.dumps(request_json)
-    print(request_body)
+
     timestamp = datetime.datetime.now().strftime("%s")
     payload = f"{PATH}|{timestamp}|{request_body}"
         
