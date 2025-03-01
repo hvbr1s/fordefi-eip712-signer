@@ -61,7 +61,21 @@ typed_data = {
     }
 }
 
+def decode_signature(signature_b64, chain_id):
+
+    """Decode a base64 signature into r, s, v components."""
+
+    signature = base64.b64decode(signature_b64)
+    r = int.from_bytes(signature[0:32], byteorder='big')
+    s = int.from_bytes(signature[32:64], byteorder='big')       
+    v_raw = v_raw = int(signature[-1]) # 27/28
+    v = v_raw + 2 * chain_id + 8
+    
+    return r, s, v
+
 def main():
+
+    """Main function to execute the EIP-712 signing process."""
 
     if not FORDEFI_API_USER_TOKEN:
         print("Error: FORDEFI_API_TOKEN environment variable is not set")
@@ -86,20 +100,17 @@ def main():
             response_data = resp_tx.json()
             print(json.dumps(response_data, indent=2))
 
-            # OPTIONAL Decode signature
-            signature_b64 = response_data.get("signatures")[0]
-            print(f"Signature -> {signature_b64}")
-            signature = base64.b64decode(signature_b64)
-            # Extract r, s, v components
-            r = int.from_bytes(signature[0:32], byteorder='big')
-            s = int.from_bytes(signature[32:64], byteorder='big')       
-            # For v, use the chain_id from your typed data
-            chain_id = typed_data["domain"]["chainId"]
-            v = int(signature[-1]) + 35 + 2 * chain_id
-            
-            print(f"r: {hex(r)}")
-            print(f"s: {hex(s)}")
-            print(f"v: {v}")
+            # OPTIONAL Decode signature if returned
+            if "signatures" in response_data and response_data["signatures"]:
+                signature_b64 = response_data["signatures"][0]
+                print(f"Signature -> {signature_b64}")
+                
+                chain_id = typed_data["domain"]["chainId"]
+                r, s, v = decode_signature(signature_b64, chain_id)
+                
+                print(f"r: {hex(r)}")
+                print(f"s: {hex(s)}")
+                print(f"v: {v}")
 
         except json.JSONDecodeError:
             print("Failed printing response data!")
