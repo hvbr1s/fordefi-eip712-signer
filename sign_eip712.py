@@ -13,6 +13,7 @@ FORDEFI_API_USER_TOKEN = os.getenv("FORDEFI_API_USER_TOKEN")
 FORDEFI_EVM_VAULT_ID = os.getenv("FORDEFI_EVM_VAULT_ID")
 PATH = "/api/v1/transactions/create-and-wait"
 
+# Example typed data
 typed_data = {
     "types": {
         "EIP712Domain": [{
@@ -68,18 +69,14 @@ def decode_signature(signature_b64, chain_id):
     signature = base64.b64decode(signature_b64)
     r = int.from_bytes(signature[0:32], byteorder='big')
     s = int.from_bytes(signature[32:64], byteorder='big')       
-    v_raw = v_raw = int(signature[-1]) # 27/28
+    v_raw = v_raw = int(signature[-1]) # 27 or 28
     v = v_raw + 2 * chain_id + 8
     
     return r, s, v
 
 def main():
 
-    """Main function to execute the EIP-712 signing process."""
-
-    if not FORDEFI_API_USER_TOKEN:
-        print("Error: FORDEFI_API_TOKEN environment variable is not set")
-        return
+    """Main function to execute the EIP-712 signing process with Fordefi"""
     
     typed_message = json.dumps(typed_data)    
     request_json = construct_request(FORDEFI_EVM_VAULT_ID, typed_message)
@@ -92,22 +89,25 @@ def main():
     signature = sign(payload=payload)
 
     try: 
-        method = "post"   
+  
         print("Making API request to Fordefi 📡")
+        method = "post" 
         resp_tx = make_api_request(PATH, FORDEFI_API_USER_TOKEN, signature, timestamp, request_body, method=method)
+
         try:
-            print("\nResponse Data:")
+
             response_data = resp_tx.json()
+            print("\nResponse Data:")
             print(json.dumps(response_data, indent=2))
 
-            # OPTIONAL Decode signature if returned
+            # OPTIONAL -> decode signature if returned
             if "signatures" in response_data and response_data["signatures"]:
                 signature_b64 = response_data["signatures"][0]
-                print(f"Signature -> {signature_b64}")
                 
                 chain_id = typed_data["domain"]["chainId"]
                 r, s, v = decode_signature(signature_b64, chain_id)
                 
+                print("\nDecoded signature:")
                 print(f"r: {hex(r)}")
                 print(f"s: {hex(s)}")
                 print(f"v: {v}")
