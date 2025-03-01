@@ -68,9 +68,9 @@ def decode_signature(signature_b64, chain_id):
 
     signature = base64.b64decode(signature_b64)
     r = int.from_bytes(signature[0:32], byteorder='big')
-    s = int.from_bytes(signature[32:64], byteorder='big')       
-    v_raw = v_raw = int(signature[-1]) # 27 or 28
-    v = v_raw + 2 * chain_id + 8
+    s = int.from_bytes(signature[32:64], byteorder='big')
+    v_raw = int(signature[-1]) # 27 or 28
+    v = v_raw + 35 + 2 * chain_id
     
     return r, s, v
 
