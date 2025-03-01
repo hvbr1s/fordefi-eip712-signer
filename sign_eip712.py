@@ -62,9 +62,14 @@ def main():
 
     """Main function to execute the EIP-712 signing process with Fordefi"""
     
-    typed_message = json.dumps(typed_data)
 
-    request_json = construct_request(FORDEFI_EVM_VAULT_ID, typed_message)
+    raw_typed_message_ = json.dumps(typed_data)
+
+    # OPTIONAL -> hex-encode the raw typed message
+    hex_encoded_typed_message = '0x' + raw_typed_message_.encode('utf-8').hex()
+
+    # You can pass the typed message in its raw version or hex-encoded
+    request_json = construct_request(FORDEFI_EVM_VAULT_ID, hex_encoded_typed_message)
 
     request_body = json.dumps(request_json)
 
@@ -85,7 +90,7 @@ def main():
             print("\nResponse Data:")
             print(json.dumps(response_data, indent=2))
 
-            # OPTIONAL -> decode signature if returned
+            # OPTIONAL -> decode the signature if returned
             if "signatures" in response_data and response_data["signatures"]:
                 signature_b64 = response_data["signatures"][0]
                 
