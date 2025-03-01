@@ -4,9 +4,9 @@ import base64
 import json
 import requests
 from dotenv import load_dotenv
+from signing.signer import sign
 from api_requests.push_to_api import make_api_request
 from request_builder.construct_request import construct_request
-from signing.signer import sign
 
 load_dotenv()
 FORDEFI_API_USER_TOKEN = os.getenv("FORDEFI_API_USER_TOKEN")
@@ -16,49 +16,33 @@ PATH = "/api/v1/transactions/create-and-wait"
 # Example typed data
 typed_data = {
     "types": {
-        "EIP712Domain": [{
-            "name": "name",
-            "type": "string"
-        }, {
-            "name": "version",
-            "type": "string"
-        }, {
-            "name": "chainId",
-            "type": "uint256"
-        }, {
-            "name": "verifyingContract",
-            "type": "address"
-        }],
-        "Permit": [{
-            "name": "owner",
-            "type": "address"
-        }, {
-            "name": "spender",
-            "type": "address"
-        }, {
-            "name": "value",
-            "type": "uint256"
-        }, {
-            "name": "nonce",
-            "type": "uint256"
-        }, {
-            "name": "deadline",
-            "type": "uint256"
-        }]
+        "EIP712Domain": [
+            {"name": "name", "type": "string"},
+            {"name": "version", "type": "string"},
+            {"name": "chainId", "type": "uint256"},
+            {"name": "verifyingContract", "type": "address"}
+        ],
+        "Permit": [
+            {"name": "owner", "type": "address"},
+            {"name": "spender", "type": "address"},
+            {"name": "value", "type": "uint256"},
+            {"name": "nonce", "type": "uint256"},
+            {"name": "deadline", "type": "uint256"}
+        ]
     },
-    "primaryType": "Permit",
     "domain": {
         "name": "USD Coin",
-        "verifyingContract": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "version": "2",
         "chainId": 1,
-        "version": "2"
+        "verifyingContract": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
     },
+    "primaryType": "Permit",
     "message": {
-        "deadline": 1767166198,
-        "nonce": 1000,
-        "spender": "0x1111111254fb6c44bac0bed2854e76f90643097d",
         "owner": "0x8BFCF9e2764BC84DE4BBd0a0f5AAF19F47027A73",
-        "value": "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+        "spender": "0x1111111254fb6c44bac0bed2854e76f90643097d",
+        "value": "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        "nonce": 1000,
+        "deadline": 1767166198
     }
 }
 
@@ -78,7 +62,8 @@ def main():
 
     """Main function to execute the EIP-712 signing process with Fordefi"""
     
-    typed_message = json.dumps(typed_data)    
+    typed_message = json.dumps(typed_data)
+
     request_json = construct_request(FORDEFI_EVM_VAULT_ID, typed_message)
 
     request_body = json.dumps(request_json)
