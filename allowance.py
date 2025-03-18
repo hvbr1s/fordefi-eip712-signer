@@ -50,11 +50,11 @@ def main():
         'from': FORDEFI_EVM_VAULT_ADDRESS,
         'gas': 100000, # gas limit
         'gasPrice': w3.eth.gas_price,
-        'nonce': 0  # This will be ignored by Fordefi API but needed for encoding
+        'nonce': 0  # this will be ignored by the Fordefi API but needed for encoding
     })["data"]
     print("Encoded call data:", call_data)
 
-    # Built API payload for Fordefi   
+    # Built API payload for Fordefi, note that we're now passing the proxy contract and not the implementation contract   
     request_json = construct_allowance_request(FORDEFI_EVM_VAULT_ID, approval_config["evm_chain"], approval_config["proxy_token_contract_address"], call_data)
 
     request_body = json.dumps(request_json)
@@ -70,17 +70,14 @@ def main():
         method = "post" 
         resp_tx = make_api_request(PATH, FORDEFI_API_USER_TOKEN, signature, timestamp, request_body, method=method)
 
-        try:
-
-            response_data = resp_tx.json()
-            # print("\nDEBUG - Response Data:")
-            # print(json.dumps(response_data, indent=2))
-
-        except json.JSONDecodeError:
-            print("Failed printing response data!")
+        # print("\nDEBUG - Response Data:")
+        # try:
+        #     response_data = resp_tx.json()
+        #     # print(json.dumps(response_data, indent=2))
+        # except json.JSONDecodeError:
+        #     print("Failed printing response data!")
         
         resp_tx.raise_for_status()
-        return resp_tx
     
     except requests.exceptions.HTTPError as e:
         error_message = f"HTTP error occurred: {str(e)}"
